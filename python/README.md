@@ -2,6 +2,7 @@
 	
 ### hexdiff
 Compare files using hexadecimal format.
+
 **usage:** hexdiff [\-h] [\-a] ref\_file cmp\_files [cmp\_files ...]
 
 Compare multiple files in hexadecimal.
@@ -12,8 +13,11 @@ For each block of data at the same offset, is printed :
 
 ---
 ### translate
+
 prints a file's content in binary, octal, decimal, hexadecimal, UTF-8.
+
 **usage:** translate file\_name
+
 ---
 
 
