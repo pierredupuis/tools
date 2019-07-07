@@ -1,0 +1,20 @@
+
+slide() {
+	if [ -z "$2" ]; then
+		cd ../$1
+	else
+		cd "$(pwd | sed -e "s/$1/$2/")"
+	fi
+}
+
+go() {
+	cd ${!1}
+}
+
+mkcd() {
+	mkdir $*
+	cd $1
+}
+
+
+

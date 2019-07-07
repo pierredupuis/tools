@@ -1,0 +1,14 @@
+
+prompt_status() {
+	if [ $? == 0 ]; then
+		if [ "$USER" == "root" ]; then
+			PS1="\[$MAGENTA$BOLD\]\w> \[$DEFAULT\]"
+		else
+			PS1="\[$CYAN$BOLD\]\w) \[$DEFAULT\]"
+		fi
+	else
+		PS1="\[$RED$BOLD\]\w) \[$DEFAULT\]"
+	fi
+}
+PROMPT_COMMAND=prompt_status
+
