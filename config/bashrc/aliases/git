@@ -1,8 +1,9 @@
 
 alias gs='git status'
 alias ga='git add'
-alias gc='git checkout'
-alias gcn='git checkout -b'
+alias gc='git commit'
+alias gck='git checkout'
+alias gckb='git checkout -b'
 alias gl='git log --oneline --graph'
 alias gr='git reflog'
 alias gst='git stash'
