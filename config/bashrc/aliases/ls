@@ -1,7 +1,5 @@
-
 alias ll='ls -la'
 alias lg='ll | grep'
 alias l0='lg "\s0\s"'
 alias l1='lg -v "\s0\s"'
 alias lb='ll | less'
-

@@ -1,4 +1,3 @@
-
 prompt_status() {
 	if [ $? == 0 ]; then
 		if [ "$USER" == "root" ]; then
@@ -10,5 +9,5 @@ prompt_status() {
 		PS1="\[$RED$BOLD\]\w) \[$DEFAULT\]"
 	fi
 }
-PROMPT_COMMAND=prompt_status
 
+PROMPT_COMMAND=prompt_status

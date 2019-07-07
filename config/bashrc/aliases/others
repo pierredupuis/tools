@@ -1,4 +1,3 @@
-
 alias grep='grep -ia --color'
 alias net='sudo service networking'
 alias psg='ps aux | grep -v "ps aux" | grep'

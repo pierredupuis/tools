@@ -1,4 +1,3 @@
-
 alias gs='git status'
 alias ga='git add'
 alias gc='git commit'
@@ -9,4 +8,3 @@ alias gl='git log --oneline --graph'
 alias gr='git reflog'
 alias gst='git stash'
 alias gp='git push'
-
