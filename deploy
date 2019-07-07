@@ -1,0 +1,180 @@
+#! /bin/bash
+
+
+### General functions
+
+usage() {
+	. bashrc/colors
+	printf "%s" "
+$(echo -e ${BOLD}USAGE${DEFAULT})
+	$(basename $0) [-a] [-b ...] [-c ...] [-s ...]
+
+$(echo -e ${BOLD}DESCRIPTION${DEFAULT})
+	Copies bashrc content, configuration files and scripts into the system.
+
+$(echo -e ${BOLD}OPTIONS${DEFAULT})
+	-a, --all
+		Perform all operations, without prompt.
+		This is the default behavior if no arguments are given.
+		Note: Will also add '.bonus' import in bashrc.
+
+	-b, --bash, --bashrc
+		Set up bashrc bonus content into \$HOME/.bonus. You will have to include it from your actual .bashrc.
+		Alternatively, use --bash-import to automatically add it. Don't add it twice!
+	
+	--bash-import
+		Add '.bonus' import into bashrc.
+
+	-c, --config
+		Set up configuration files.
+		You will be prompted for confirmation for each configuration file.
+		Alternatively, use '-c all' to copy every file and skip prompts
+
+	-s, --scripts
+		Set up scripts.
+		Scripts are copied into /usr/local/bin/. You may need admin rights.
+		You can specify a different directory after the argument: '-s <path>'
+
+	"
+}
+confirm() {
+	read -p "$1 " res
+	if [ "${res,,}" == "y" ] || [ "$res" == "1" ]; then
+		return 0
+	else
+		return -1
+	fi
+}
+
+
+### bashrc functions
+
+output_bashrc_colors() {
+	echo
+	echo "### COLORS ###"
+	echo
+	cat "bashrc/colors"
+	echo
+	echo
+}
+output_bashrc_aliases() {
+	echo "### ALIASES ###"
+	echo 
+	for file in $(ls "bashrc/aliases/"); do
+		echo "# $file"
+		cat "bashrc/aliases/$file"
+		echo
+	done
+	echo
+}
+output_bashrc_functions() {
+	echo "### FUNCTIONS ###"
+	echo
+	cat "bashrc/functions"
+	echo
+	echo
+}
+output_bashrc_prompt() {
+	echo "### PROMPT ###"
+	echo
+	cat "bashrc/prompt"
+	echo
+}
+
+output_bashrc() {
+	output_bashrc_colors
+	output_bashrc_aliases
+	output_bashrc_functions
+	output_bashrc_prompt
+}
+
+deploy_bashrc() {
+	output_bashrc > "$HOME/.bonus"
+}
+
+
+### config function
+
+deploy_config() {
+	echo "> Deploying Configuration..."
+	
+	if confirm ">> Deploy vimrc?"; then
+		cp vimrc /etc/vim/vimrc
+	fi
+
+	echo
+}
+
+
+### scripts function
+
+deploy_scripts() {
+	if [ -z "$1" ]; then
+		od="/usr/local/bin/"
+	else
+		od="$1"
+	fi
+
+	echo "> Deploying Scripts to $od..."
+	if [ -d "$od" ]; then
+		# Copy anything that is not a .md (mostly README.md) in given directory
+		find scripts -type f -not -name "*.md" -exec cp '{}' "$od" \;
+	else
+		echo "Error: \"$od\" is not a valid directory"
+		echo "Aborting."
+		exit -1
+	fi
+}
+
+
+### Parse arguments
+
+while [ ! -z "$1" ]; do
+	case "$1" in
+		-h|--help)
+			usage
+			;;
+		-a|--all)
+			deploy_bashrc all
+			deploy_config all
+			deploy_scripts
+			;;
+		-b|--bash|--bashrc)
+			if [ "${2:0:1}" != "-" ]; then
+				shift
+				deploy_bashrc $1
+			else
+				deploy_bashrc
+			fi
+			;;
+		--bashrc-import)
+			cat "bashrc/import" >> $HOME/.bashrc
+			;;
+		-c|--config)
+			if [ "${2:0:1}" != "-" ]; then
+				shift
+				deploy_config "$1"
+			else
+				deploy_config
+			fi
+			;;
+		-s|--scripts)
+			if [ "${2:0:1}" != "-" ]; then
+				shift
+				deploy_scripts $1
+			else
+				deploy_scripts
+			fi
+			;;
+		*)
+			echo "Warning: Unknown argument \"$1\", skipping"
+			;;
+	esac
+	shift
+done
+
+
+
+
+
+
