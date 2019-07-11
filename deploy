@@ -151,7 +151,7 @@ while [ ! -z "$1" ]; do
 			cat "bashrc/import" >> $HOME/.bashrc
 			;;
 		-c|--config)
-			if [ "${2:0:1}" != "-" ]; then
+			if [ ! -z "$2" ] && [ "${2:0:1}" != "-" ]; then
 				shift
 				deploy_config "$1"
 			else
@@ -159,7 +159,7 @@ while [ ! -z "$1" ]; do
 			fi
 			;;
 		-s|--scripts)
-			if [ "${2:0:1}" != "-" ]; then
+			if [ ! -z "$2" ] && [ "${2:0:1}" != "-" ]; then
 				shift
 				deploy_scripts $1
 			else
