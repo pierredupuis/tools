@@ -22,7 +22,7 @@ $(echo -e ${BOLD}OPTIONS${DEFAULT})
 		Set up bashrc bonus content into \$HOME/.bonus. You will have to include it from your actual .bashrc.
 		Alternatively, use --bash-import to automatically add it. Don't add it twice!
 	
-	--bash-import
+	--bash-import, --bashrc-import
 		Add '.bonus' import into bashrc.
 
 	-c, --config
@@ -147,7 +147,7 @@ while [ ! -z "$1" ]; do
 				deploy_bashrc
 			fi
 			;;
-		--bashrc-import)
+		--bashrc-import|--bash-import)
 			cat "bashrc/import" >> $HOME/.bashrc
 			;;
 		-c|--config)
