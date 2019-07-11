@@ -1,0 +1,62 @@
+#! /bin/bash
+
+run_plugin() {
+	echo "=== Plugin: $1 ==="
+	volatility -f "$memdump" --profile "$profile" "$*" > "$1"
+	echo
+}
+run_plugin_d() {
+	echo "=== Plugin: $1 ==="
+	volatility -f "$memdump" --profile "$profile" "$*" -D "$1"
+	echo
+}
+
+
+init(){
+	if [ ! -z "$2" ]; then
+		memdump=$2
+	else
+		ls
+		read -p "Memory dump file: " memdump
+	fi
+	volatility -f "$memdump" imageinfo | grep "Suggested"
+	read -p "Use profile: " profile
+
+	echo -n "$profile" > ".profile"
+	echo -n "$memdump" > ".memdump"
+}
+summary() {
+	run_plugin filescan
+	run_plugin pslist
+	run_plugin handles
+	run_plugin iehistory
+	run_plugin hashdump
+	if grep -E "(XP|2003)" -q ".profile"; then
+		run_plugin connections
+		run_plugin sockets
+	else
+		run_plugin netscan
+	fi
+	run_plugin truecryptsummary
+	run_plugin devicetree
+	run_plugin_d evtlogs
+}
+cmd() {
+	echo "volatility -f $memdump --profile $profile $*"
+	volatility -f "$memdump" --profile "$profile" $*
+}
+
+cmdtee() {
+	echo "volatility -f $memdump --profile $profile $* | tee $1"
+	volatility -f "$memdump" --profile "$profile" $* | tee $1
+}
+
+profile=$(cat ".profile")
+memdump=$(cat ".memdump")
+
+case $1 in
+	-i|--init) init ;;
+	-s|--summary) summary ;;
+	-t|--tee) shift; cmdtee $* ;;
+	*) cmd $* ;;
+esac
