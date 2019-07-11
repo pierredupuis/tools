@@ -1,4 +1,3 @@
-
 # +--+--+
 # |  |--+
 # +--+--+
@@ -8,4 +7,3 @@ alias tmux3="tmux new-session \; split-window -h \; split-window -v \;"
 # +--+--+
 alias tmux4="tmux new-session \; split-window -v \; split-window -h \; select-pane -t 0 \; split-window -h \; select-pane -t 0"
 alias tmux="tmux3"
-

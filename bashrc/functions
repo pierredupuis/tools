@@ -1,4 +1,3 @@
-
 slide() {
 	if [ -z "$2" ]; then
 		cd ../$1
@@ -15,6 +14,3 @@ mkcd() {
 	mkdir $*
 	cd $1
 }
-
-
-
