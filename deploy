@@ -35,7 +35,7 @@ $(echo -e ${BOLD}OPTIONS${DEFAULT})
 		Scripts are copied into /usr/local/bin/. You may need admin rights.
 		You can specify a different directory after the argument: '-s <path>'
 
-	"
+"
 }
 confirm() {
 	read -p "$1 " res
@@ -99,7 +99,7 @@ deploy_config() {
 	echo "> Deploying Configuration..."
 	
 	if confirm ">> Deploy vimrc?"; then
-		cp vimrc /etc/vim/vimrc
+		cp config/vimrc /etc/vim/vimrc
 	fi
 
 	echo
