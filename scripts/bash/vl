@@ -1,5 +1,54 @@
 #! /bin/bash
 
+usage() {
+	DEF="\e[0;39m"
+	BOLD="\e[1m"
+
+	this=$(basename $0)
+
+	printf "%s" "
+$(echo -e "${BOLD}SUMMARY${DEF}")
+	$this - Automates volatility usage
+
+$(echo -e "${BOLD}USAGE${DEF}")
+	$this [-i|--init]
+	$this -s|--summary
+	$this [-t|--tee] <plugin> <plugin_options>
+
+$(echo -e "${BOLD}DEFINITION${DEF}")
+	Relieve the user from having to specify the profile and memory dump file on each volatility command.
+
+	The init argument let you set these options. They will be kept in the following files:
+          Memory dump:  .memdump
+          Profile:      .profile
+	This means the script is directory-specific, it is not possible to remember two different cases stored in a single directory.
+
+$(echo -e "${BOLD}OPTIONS${DEF}")
+	-h, --help
+		Show this message
+
+	-i, --init [<memorydump_file> [<profile>]]
+		Inititalize values for the memory-dump file and the profile.
+		***You can either specify them following the argument or the script will prompt for them.
+		Any incorrect value will provoke an error when trying to run a plugin.
+
+	-s, --summary [windows|linux|mac]
+		Run a selection of plugins and output the result in corresponding files.
+		***Plugins are OS-sensitive. By default, windows is used but you can specify linux or mac after the argument to change that.
+
+	<plugin> <plugin_options>
+		Get the profile from .profile, the memory dump from .memdump and run the plugin.
+		You can give plugin-specific option to add at the end of the volatility command.
+
+	-t, --tee
+		When running a plugin, also outputs the results in a file.
+
+*** In Development
+"
+
+
+}
+
 run_plugin() {
 	echo "=== Plugin: $1 ==="
 	volatility -f "$memdump" --profile "$profile" "$*" > "$1"
@@ -50,13 +99,23 @@ cmdtee() {
 	echo "volatility -f $memdump --profile $profile $* | tee $1"
 	volatility -f "$memdump" --profile "$profile" $* | tee $1
 }
-
-profile=$(cat ".profile")
-memdump=$(cat ".memdump")
+if [ -f ".profile" ]; then
+	profile=$(cat ".profile")
+fi
+if [ -f ".memdump" ]; then
+	memdump=$(cat ".memdump")
+fi
 
 case $1 in
+	-h|--help)
+		usage;
+		exit 0
+		;;
 	-i|--init) init ;;
 	-s|--summary) summary ;;
-	-t|--tee) shift; cmdtee $* ;;
+	-t|--tee)
+		shift;
+		cmdtee $*
+		;;
 	*) cmd $* ;;
 esac
