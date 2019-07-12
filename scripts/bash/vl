@@ -49,12 +49,12 @@ $(echo -e "${BOLD}OPTIONS${DEF}")
 
 }
 
-run_plugin() {
+run_win() {
 	echo "=== Plugin: $1 ==="
-	volatility -f "$memdump" --profile "$profile" "$*" > "$1"
+	volatility -f "$memdump" --profile "$profile" $* > "$1"
 	echo
 }
-run_plugin_d() {
+run_win_d() {
 	echo "=== Plugin: $1 ==="
 	volatility -f "$memdump" --profile "$profile" "$*" -D "$1"
 	echo
@@ -75,20 +75,57 @@ init(){
 	echo -n "$memdump" > ".memdump"
 }
 summary() {
-	run_plugin filescan
-	run_plugin pslist
-	run_plugin handles
-	run_plugin iehistory
-	run_plugin hashdump
-	if grep -E "(XP|2003)" -q ".profile"; then
-		run_plugin connections
-		run_plugin sockets
+	if [ -z "$1" ]; then
+		os="windows"
 	else
-		run_plugin netscan
+		os="$1"
 	fi
-	run_plugin truecryptsummary
-	run_plugin devicetree
-	run_plugin_d evtlogs
+	case "$os" in
+		"windows")
+			run_win filescan
+			run_win pslist
+			run_win handles
+			run_win iehistory
+			run_win hashdump
+			if grep -E "(XP|2003)" -q ".profile"; then
+				run_win connections
+				run_win sockets
+			else
+				run_win netscan
+			fi
+			run_win truecryptsummary
+			run_win devicetree
+			run_win evtlogs -D evtlogs
+			run_win clipboard
+		;;
+		"linux")
+			run_linux pslist
+			run_linux psaux
+			run_linux lsof
+			run_linux bash
+			run_linux netstat
+			run_linux ifconfig
+			run_linux dmesg
+			run_linux mount
+			run_linux enumerate_files
+			;;
+		"mac")
+			run_mac pslist
+			run_mac psaux
+			run_mac lsof
+			run_mac bash
+			run_mac netstat
+			run_mac ifconfig
+			run_mac dmesg
+			run_mac keychaindump
+			run_mac mount
+			run_mac list_files
+			run_mac adium
+			run_mac calendar
+			run_mac contacts
+		;;
+
+	esac
 }
 cmd() {
 	echo "volatility -f $memdump --profile $profile $*"
