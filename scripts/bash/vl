@@ -55,7 +55,16 @@ run_win() {
 	echo
 }
 
-
+run_linux() {
+	echo "=== Plugin: linux_$1 ==="
+	volatility -f "$memdump" --profile "linux_$profile" $* > "$1"
+	echo
+}
+run_mac() {
+	echo "=== Plugin: $1 ==="
+	volatility -f "$memdump" --profile "mac_$profile" $* > "$1"
+	echo
+}
 init(){
 	if [ ! -z "$2" ]; then
 		memdump=$2
