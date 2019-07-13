@@ -1,0 +1,58 @@
+#! /bin/bash
+
+context=200
+
+while [ ! -z "$1" ]; do
+	case $1 in
+		-A|--after)
+			shift
+			after=$1
+			;;
+		-B|--before)
+			shift
+			before=$1
+			;;
+		-C|--context)
+			shift
+			context=$1
+			;;
+		-o|--offset)
+			shift
+			offset=$1
+			;;
+		*)
+			if [ -z "$filename" ]; then
+				filename=$1
+			elif [ -z "$offset" ]; then
+				offset=$1
+			fi
+			;;
+	esac
+	shift
+done
+
+if [ -z "$filename" ] || [ -z "$offset" ]; then
+	echo "Error: File and offset needed"
+	echo "Filename given: $filename"
+	echo "Offset given: $offset"
+	exit -1
+fi
+if [ ! -f "$1"]; then
+	echo "Error: File does not exist"
+	exit -2
+fi
+if [ ! -z "$after" ] && [ ! -z "$before" ]; then
+	begin=$((offset - before))
+	length=$((before + after))
+elif [ ! -z "$context" ]; then
+	begin=$((offset - context))
+	length=$((context * 2))
+else
+	echo "Error: Missing argument"
+	exit -3
+fi
+
+dd if="$filename" bs=1 skip=$begin count=$length
+
+
+
