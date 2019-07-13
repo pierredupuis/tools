@@ -1,6 +1,7 @@
 #! /bin/bash
 
 WIN_SUMMARY="filescan pslist handles iehistory hashdump truecryptsummary devicetree clipboard"
+LINUX_SUMMARY="pslist psaux lsof bash netstat ifconfig dmesg mount enumerate_files"
 
 
 usage() {
@@ -111,15 +112,9 @@ summary() {
 			run_win evtlogs -D evtlogs
 		;;
 		"linux")
-			run_linux pslist
-			run_linux psaux
-			run_linux lsof
-			run_linux bash
-			run_linux netstat
-			run_linux ifconfig
-			run_linux dmesg
-			run_linux mount
-			run_linux enumerate_files
+			for plg in $LINUX_SUMMARY; do
+				run_linux $plg
+			done
 			;;
 		"mac")
 			run_mac pslist
