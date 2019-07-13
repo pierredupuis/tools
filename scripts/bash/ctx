@@ -1,0 +1,114 @@
+#! /bin/bash
+
+context=200
+
+usage() {
+	DEF="\e[0;39m"
+	BOLD="\e[1m"
+
+	this=$(basename $0)
+
+	printf "%s" "
+$(echo -e "${BOLD}SUMMARY${DEF}")
+	$this - Give some context on a given offset of a given file
+
+$(echo -e "${BOLD}USAGE${DEF}")
+	$this <file> <offset>
+	$this <file> <offset> -C <nb>
+	$this <file> <offset> -A <nb_after> -B <nb_before>
+	$this -o <offset> <file> ...
+
+$(echo -e "${BOLD}DEFINITION${DEF}")
+	Uses dd to output 200 preceeding and following bytes from an offset.
+	This value can be modified. It is also possible to specify different values for the number of bytes to output before and after the offset.
+
+$(echo -e "${BOLD}OPTIONS${DEF}")
+	-h, --help
+		Show this message
+
+	-A, --after <nb_after>
+		Set the number of bytes to output after the offset
+
+	-B, --before <nb_before>
+		Set the number of bytes to output before the offset
+
+	-C, --context <nb>
+		Set the number of bytes to output after and before the offset
+
+	<file>
+		Give the file from which data will be extracted
+
+	<offset>
+		Give the offset, starting point of data extraction
+		Has to be given after the file
+		If you need to give the offset before the file, use	'-o'
+
+"
+
+}
+
+while [ ! -z "$1" ]; do
+	case $1 in
+		-h|--help)
+			usage
+			exit 0
+			;;
+		-A|--after)
+			shift
+			after=$1
+			;;
+		-B|--before)
+			shift
+			before=$1
+			;;
+		-C|--context)
+			shift
+			context=$1
+			;;
+		-o|--offset)
+			shift
+			offset=$1
+			;;
+		*)
+			if [ -z "$filename" ]; then
+				filename=$1
+			elif [ -z "$offset" ]; then
+				offset=$1
+			else
+				echo "Warning: \"$1\" argument does not exist"
+			fi
+			;;
+	esac
+	shift
+done
+
+if [ -z "$filename" ] || [ -z "$offset" ]; then
+	echo "Error: File and offset needed"
+	echo "Filename given: $filename"
+	echo "Offset given: $offset"
+	exit -1
+fi
+if [ ! -f "$1"]; then
+	echo "Error: File does not exist"
+	exit -2
+fi
+if [ ! -z "$after" ] && [ ! -z "$before" ]; then
+	begin=$((offset - before))
+	length=$((before + after))
+elif [ ! -z "$context" ]; then
+	begin=$((offset - context))
+	length=$((context * 2))
+else
+	echo "Error: Missing argument"
+	exit -3
+fi
+
+# Negative value changed to 0
+if (($begin < 0)); then
+	begin=0
+fi
+
+dd if="$filename" bs=1 skip=$begin count=$length
+
+
+
