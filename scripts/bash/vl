@@ -121,6 +121,10 @@ summary() {
 			for plg in $MAC_SUMMARY; do
 				run_linux $plg
 			done
+			;;
+		*)
+			echo "Error: \"$os\" not recognied"
+			exit -1
 		;;
 	esac
 }
@@ -147,10 +151,12 @@ case $1 in
 		exit 0
 		;;
 	-i|--init)
+		shift
 		init $*
 		exit $?
 		;;
 	-s|--summary)
+		shift
 		summary $*
 		exit $?
 		;;
@@ -162,11 +168,10 @@ case $1 in
 		if [ -z "$profile" ] || [ -z "$memdump" ]; then
 			init
 		else
-			echo "Error: Arguments needed"
 			echo " > Found memdump: $memdump"
 			echo " > Found profile: $profile"
 			echo
-			exit -1
+			exit 0
 		fi
 		;;
 	*) cmd $* ;;
