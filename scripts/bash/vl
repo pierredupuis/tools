@@ -1,5 +1,8 @@
 #! /bin/bash
 
+WIN_SUMMARY="filescan pslist handles iehistory hashdump truecryptsummary devicetree clipboard"
+
+
 usage() {
 	DEF="\e[0;39m"
 	BOLD="\e[1m"
@@ -94,21 +97,18 @@ summary() {
 	fi
 	case "$os" in
 		"windows")
-			run_win filescan
-			run_win pslist
-			run_win handles
-			run_win iehistory
-			run_win hashdump
+			for plg in $WIN_SUMMARY; do 
+				run_win $plg
+			done
+			# Version-specific plugins
 			if grep -E "(XP|2003)" -q ".profile"; then
 				run_win connections
 				run_win sockets
 			else
 				run_win netscan
 			fi
-			run_win truecryptsummary
-			run_win devicetree
+			# Plugins with additional arguments
 			run_win evtlogs -D evtlogs
-			run_win clipboard
 		;;
 		"linux")
 			run_linux pslist
