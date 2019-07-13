@@ -2,6 +2,7 @@
 
 WIN_SUMMARY="filescan pslist handles iehistory hashdump truecryptsummary devicetree clipboard"
 LINUX_SUMMARY="pslist psaux lsof bash netstat ifconfig dmesg mount enumerate_files"
+MAC_SUMMARY="pslist psaux lsof bash netstat ifconfig dmesg keychaindump mount list_files adium calendar contacts"
 
 
 usage() {
@@ -98,7 +99,7 @@ summary() {
 	fi
 	case "$os" in
 		"windows")
-			for plg in $WIN_SUMMARY; do 
+			for plg in $WIN_SUMMARY; do
 				run_win $plg
 			done
 			# Version-specific plugins
@@ -117,21 +118,10 @@ summary() {
 			done
 			;;
 		"mac")
-			run_mac pslist
-			run_mac psaux
-			run_mac lsof
-			run_mac bash
-			run_mac netstat
-			run_mac ifconfig
-			run_mac dmesg
-			run_mac keychaindump
-			run_mac mount
-			run_mac list_files
-			run_mac adium
-			run_mac calendar
-			run_mac contacts
+			for plg in $MAC_SUMMARY; do
+				run_linux $plg
+			done
 		;;
-
 	esac
 }
 cmd() {
@@ -143,6 +133,7 @@ cmdtee() {
 	echo "volatility -f $memdump --profile $profile $* | tee $1"
 	volatility -f "$memdump" --profile "$profile" $* | tee $1
 }
+
 if [ -f ".profile" ]; then
 	profile=$(cat ".profile")
 fi
