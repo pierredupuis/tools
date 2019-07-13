@@ -54,11 +54,6 @@ run_win() {
 	volatility -f "$memdump" --profile "$profile" $* > "$1"
 	echo
 }
-run_win_d() {
-	echo "=== Plugin: $1 ==="
-	volatility -f "$memdump" --profile "$profile" "$*" -D "$1"
-	echo
-}
 
 
 init(){
