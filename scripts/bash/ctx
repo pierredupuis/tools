@@ -74,6 +74,8 @@ while [ ! -z "$1" ]; do
 				filename=$1
 			elif [ -z "$offset" ]; then
 				offset=$1
+			else
+				echo "Warning: \"$1\" argument does not exist"
 			fi
 			;;
 	esac
