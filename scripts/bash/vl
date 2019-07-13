@@ -1,0 +1,178 @@
+#! /bin/bash
+
+WIN_SUMMARY="filescan pslist handles iehistory hashdump truecryptsummary devicetree clipboard"
+LINUX_SUMMARY="pslist psaux lsof bash netstat ifconfig dmesg mount enumerate_files"
+MAC_SUMMARY="pslist psaux lsof bash netstat ifconfig dmesg keychaindump mount list_files adium calendar contacts"
+
+
+usage() {
+	DEF="\e[0;39m"
+	BOLD="\e[1m"
+
+	this=$(basename $0)
+
+	printf "%s" "
+$(echo -e "${BOLD}SUMMARY${DEF}")
+	$this - Automates volatility usage
+
+$(echo -e "${BOLD}USAGE${DEF}")
+	$this [-i|--init]
+	$this -s|--summary
+	$this [-t|--tee] <plugin> <plugin_options>
+
+$(echo -e "${BOLD}DEFINITION${DEF}")
+	Relieve the user from having to specify the profile and memory dump file on each volatility command.
+
+	The init argument let you set these options. They will be kept in the following files:
+          Memory dump:  .memdump
+          Profile:      .profile
+	This means the script is directory-specific, it is not possible to remember two different cases stored in a single directory.
+
+$(echo -e "${BOLD}OPTIONS${DEF}")
+	-h, --help
+		Show this message
+
+	-i, --init [<memorydump_file> [<profile>]]
+		Inititalize values for the memory-dump file and the profile.
+		***You can either specify them following the argument or the script will prompt for them.
+		Any incorrect value will provoke an error when trying to run a plugin.
+
+	-s, --summary [windows|linux|mac]
+		Run a selection of plugins and output the result in corresponding files.
+		***Plugins are OS-sensitive. By default, windows is used but you can specify linux or mac after the argument to change that.
+
+	<plugin> <plugin_options>
+		Get the profile from .profile, the memory dump from .memdump and run the plugin.
+		You can give plugin-specific option to add at the end of the volatility command.
+
+	-t, --tee
+		When running a plugin, also outputs the results in a file.
+
+*** In Development
+"
+
+
+}
+
+run_win() {
+	echo "Executing plugin $1..."
+	volatility -f "$memdump" --profile "$profile" $* > "$1"
+}
+
+run_linux() {
+	echo "Executing plugin $1..."
+	volatility -f "$memdump" --profile "linux_$profile" $* > "$1"
+}
+run_mac() {
+	echo "Executing plugin $1..."
+	volatility -f "$memdump" --profile "mac_$profile" $* > "$1"
+}
+
+init(){
+	# Get memdump and profile from argument if here
+	if [ ! -z "$1" ]; then
+		memdump="$1"
+		if [ ! -z "$2" ]; then
+			profile=$2
+		fi
+	fi
+
+	# Get memdump and profile from user if missing
+	if [ -z "$1" ]; then
+		ls
+		read -p "Memory dump file: " memdump
+	fi
+	if [ -z "$2" ]; then
+		volatility -f "$memdump" imageinfo | grep "Suggested"
+		read -p "Use profile: " profile
+	fi
+	
+	# Write memdump and profile to files
+	echo -n "$profile" > ".profile"
+	echo -n "$memdump" > ".memdump"
+}
+summary() {
+	if [ -z "$1" ]; then
+		os="windows"
+	else
+		os="$1"
+	fi
+	case "$os" in
+		"windows")
+			for plg in $WIN_SUMMARY; do
+				run_win $plg
+			done
+			# Version-specific plugins
+			if grep -E "(XP|2003)" -q ".profile"; then
+				run_win connections
+				run_win sockets
+			else
+				run_win netscan
+			fi
+			# Plugins with additional arguments
+			run_win evtlogs -D evtlogs
+		;;
+		"linux")
+			for plg in $LINUX_SUMMARY; do
+				run_linux $plg
+			done
+			;;
+		"mac")
+			for plg in $MAC_SUMMARY; do
+				run_linux $plg
+			done
+			;;
+		*)
+			echo "Error: \"$os\" not recognied"
+			exit -1
+		;;
+	esac
+}
+cmd() {
+	echo "volatility -f $memdump --profile $profile $*"
+	volatility -f "$memdump" --profile "$profile" $*
+}
+
+cmdtee() {
+	echo "volatility -f $memdump --profile $profile $* | tee $1"
+	volatility -f "$memdump" --profile "$profile" $* | tee $1
+}
+
+if [ -f ".profile" ]; then
+	profile=$(cat ".profile")
+fi
+if [ -f ".memdump" ]; then
+	memdump=$(cat ".memdump")
+fi
+
+case $1 in
+	-h|--help)
+		usage;
+		exit 0
+		;;
+	-i|--init)
+		shift
+		init $*
+		exit $?
+		;;
+	-s|--summary)
+		shift
+		summary $*
+		exit $?
+		;;
+	-t|--tee)
+		shift;
+		cmdtee $*
+		;;
+	"")
+		if [ -z "$profile" ] || [ -z "$memdump" ]; then
+			init
+		else
+			echo " > Found memdump: $memdump"
+			echo " > Found profile: $profile"
+			echo
+			exit 0
+		fi
+		;;
+	*) cmd $* ;;
+esac
