@@ -146,8 +146,14 @@ case $1 in
 		usage;
 		exit 0
 		;;
-	-i|--init) init ;;
-	-s|--summary) summary ;;
+	-i|--init)
+		init $*
+		exit $?
+		;;
+	-s|--summary)
+		summary $*
+		exit $?
+		;;
 	-t|--tee)
 		shift;
 		cmdtee $*
