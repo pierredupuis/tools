@@ -158,5 +158,16 @@ case $1 in
 		shift;
 		cmdtee $*
 		;;
+	"")
+		if [ -z "$profile" ] || [ -z "$memdump" ]; then
+			init
+		else
+			echo "Error: Arguments needed"
+			echo " > Found memdump: $memdump"
+			echo " > Found profile: $profile"
+			echo
+			exit -1
+		fi
+		;;
 	*) cmd $* ;;
 esac
