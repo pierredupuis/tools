@@ -64,15 +64,25 @@ run_mac() {
 }
 
 init(){
-	if [ ! -z "$2" ]; then
-		memdump=$2
-	else
+	# Get memdump and profile from argument if here
+	if [ ! -z "$1" ]; then
+		memdump="$1"
+		if [ ! -z "$2" ]; then
+			profile=$2
+		fi
+	fi
+
+	# Get memdump and profile from user if missing
+	if [ -z "$1" ]; then
 		ls
 		read -p "Memory dump file: " memdump
 	fi
-	volatility -f "$memdump" imageinfo | grep "Suggested"
-	read -p "Use profile: " profile
-
+	if [ -z "$2" ]; then
+		volatility -f "$memdump" imageinfo | grep "Suggested"
+		read -p "Use profile: " profile
+	fi
+	
+	# Write memdump and profile to files
 	echo -n "$profile" > ".profile"
 	echo -n "$memdump" > ".memdump"
 }
