@@ -101,6 +101,11 @@ else
 	exit -3
 fi
 
+# Negative value changed to 0
+if (($begin < 0)); then
+	begin=0
+fi
+
 dd if="$filename" bs=1 skip=$begin count=$length
 
 
