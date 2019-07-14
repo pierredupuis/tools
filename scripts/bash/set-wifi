@@ -1,5 +1,7 @@
 #! /bin/bash
 
+DEFAULT_OVPN="/etc/openvpn/client/default.ovpn"
+
 usage() {
 	DEF="\e[0;39m"
 	BOLD="\e[1m"
@@ -23,6 +25,7 @@ $(echo -e "${BOLD}OPTIONS${DEF}")
 
 	-p, --vpn <ovpn_file>
 		Specify that the script should attempt to make a VPN connection after setting up WiFi, using the given ovpn file
+		If no file is given then /etc/openvpn/client/default.ovpn is used
 
 "
 
@@ -36,8 +39,15 @@ while [ ! -z "$1" ]; do
 			exit 0
 			;;
 		-p|--vpn)
-			shift
-			ovpn_file="$1"
+			if [ -z "$2" ]; then
+				shift
+				ovpn_file="$1"
+			elif [ -f "$DEFAULT_OVPN" ]; then
+				ovpn_file="$DEFAULT_OVPN"
+			else
+				echo "Error: No OVPN file found."
+				exit -1
+			fi
 			;;
 		*)
 			SSID="$1"
@@ -59,7 +69,7 @@ if sudo iwlist wlan0 scan | grep "$SSID" -q; then
 	sudo iwconfig wlan0 essid $SSID
 	sudo dhclient wlan0
 
-	if [ ! -z "$ovpn_file" ]; then
+	if [ -f "$ovpn_file" ]; then
 		# sets up VPN
 		sudo service openvpn start
 		sudo openvpn --config "$ovpn_file"
