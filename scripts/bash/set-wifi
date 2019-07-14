@@ -57,11 +57,17 @@ if sudo iwlist wlan0 scan | grep "$SSID" -q; then
 	echo "Connecting to $SSID..."
 	sudo iwconfig wlan0 essid $SSID
 	sudo dhclient wlan0
+
+	if [ ! -z "$ovpn_file" ]; then
+		# sets up VPN
+		sudo service openvpn start
+		sudo openvpn --config "$ovpn_file"
+	fi
 else
 	echo "Error: $SSID not found!"
+	exit 1
 fi
 
-if [ "$2" == "vpn" ]; then
-	sudo service openvpn start
-	sudo openvpn --config 
-fi
+
+
+
