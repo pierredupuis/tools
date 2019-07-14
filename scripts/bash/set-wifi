@@ -70,7 +70,7 @@ if sudo iwlist wlan0 scan | grep "$SSID" -q; then
 	sudo dhclient wlan0
 
 	if [ -f "$ovpn_file" ]; then
-		# sets up VPN
+		echo "Setting up VPN..."
 		sudo service openvpn start
 		sudo openvpn --config "$ovpn_file"
 	fi
