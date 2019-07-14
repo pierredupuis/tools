@@ -7,6 +7,18 @@ if [ -z "$1" ]; then
 	exit -1
 fi
 
+while [ ! -z "$1" ]; do
+	case $1 in
+		-p|--vpn)
+			shift
+			ovpn_file="$1"
+			;;
+		*)
+			SSID="$1"
+			;;
+	esac
+done
+
 SSID=$1
 
 sudo ifconfig wlan0 up
