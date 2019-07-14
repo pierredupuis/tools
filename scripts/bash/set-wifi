@@ -43,6 +43,7 @@ while [ ! -z "$1" ]; do
 			SSID="$1"
 			;;
 	esac
+	shift
 done
 
 if [ -z "$SSID" ]; then
