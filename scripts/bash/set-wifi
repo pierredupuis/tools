@@ -28,12 +28,6 @@ $(echo -e "${BOLD}OPTIONS${DEF}")
 
 }
 
-if [ -z "$1" ]; then
-	echo "Error: missing SSID argument"
-	echo "Usage: $(basename $0) <ssid>"
-	echo
-	exit -1
-fi
 
 while [ ! -z "$1" ]; do
 	case $1 in
@@ -51,7 +45,12 @@ while [ ! -z "$1" ]; do
 	esac
 done
 
-SSID=$1
+if [ -z "$SSID" ]; then
+	echo "Error: missing SSID argument"
+	echo "Usage: $(basename $0) <ssid> [-p <ovpn_file>]"
+	echo
+	exit -1
+fi
 
 sudo ifconfig wlan0 up
 if sudo iwlist wlan0 scan | grep "$SSID" -q; then
