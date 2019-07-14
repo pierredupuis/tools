@@ -1,5 +1,33 @@
 #! /bin/bash
 
+usage() {
+	DEF="\e[0;39m"
+	BOLD="\e[1m"
+
+	this=$(basename $0)
+
+	printf "%s" "
+$(echo -e "${BOLD}SUMMARY${DEF}")
+	$this - Sets up wifi and VPN
+
+$(echo -e "${BOLD}USAGE${DEF}")
+	$this <SSID> [-p <ovpn_file>]
+
+$(echo -e "${BOLD}DEFINITION${DEF}")
+	Sets up Wifi for the given SSID
+	Can also bring the VPN up if OVPN file is given
+
+$(echo -e "${BOLD}OPTIONS${DEF}")
+	<ssid>
+		SSID of the Access Point to connect to
+
+	-p, --vpn <ovpn_file>
+		Specify that the script should attempt to make a VPN connection after setting up WiFi, using the given ovpn file
+
+"
+
+}
+
 if [ -z "$1" ]; then
 	echo "Error: missing SSID argument"
 	echo "Usage: $(basename $0) <ssid>"
@@ -9,6 +37,10 @@ fi
 
 while [ ! -z "$1" ]; do
 	case $1 in
+		-h|--help)
+			usage
+			exit 0
+			;;
 		-p|--vpn)
 			shift
 			ovpn_file="$1"
