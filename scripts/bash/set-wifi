@@ -1,0 +1,24 @@
+#! /bin/bash
+
+if [ -z "$1" ]; then
+	echo "Error: missing SSID argument"
+	echo "Usage: $(basename $0) <ssid>"
+	echo
+	exit -1
+fi
+
+SSID=$1
+
+sudo ifconfig wlan0 up
+if sudo iwlist wlan0 scan | grep "$SSID" -q; then
+	echo "Connecting to $SSID..."
+	sudo iwconfig wlan0 essid $SSID
+	sudo dhclient wlan0
+else
+	echo "Error: $SSID not found!"
+fi
+
+if [ "$2" == "vpn" ]; then
+	sudo service openvpn start
+	sudo openvpn --config 
+fi
