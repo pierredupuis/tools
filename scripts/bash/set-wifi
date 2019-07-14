@@ -32,14 +32,14 @@ $(echo -e "${BOLD}OPTIONS${DEF}")
 }
 
 
-while [ ! -z "$1" ]; do
+while [ -n "$1" ]; do
 	case $1 in
 		-h|--help)
 			usage
 			exit 0
 			;;
 		-p|--vpn)
-			if [ -z "$2" ]; then
+			if [ -n "$2" ]; then
 				shift
 				ovpn_file="$1"
 			elif [ -f "$DEFAULT_OVPN" ]; then
