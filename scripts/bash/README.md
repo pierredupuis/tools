@@ -32,3 +32,14 @@ ctx <file> <offset> -A <nb_after> -B <nb_before>
 For further details, run `ctx -h`
 
 ---
+
+### set-wifi
+
+Sets up WiFi connection and VPN (optional).
+
+```bash
+set-wifi <SSID>
+set-wifi <SSID> -p <ovpn_file>i
+```
+
+For further details, run `set-wifi -h`
