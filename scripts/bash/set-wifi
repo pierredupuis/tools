@@ -1,0 +1,84 @@
+#! /bin/bash
+
+DEFAULT_OVPN="/etc/openvpn/client/default.ovpn"
+
+usage() {
+	DEF="\e[0;39m"
+	BOLD="\e[1m"
+
+	this=$(basename $0)
+
+	printf "%s" "
+$(echo -e "${BOLD}SUMMARY${DEF}")
+	$this - Sets up wifi and VPN
+
+$(echo -e "${BOLD}USAGE${DEF}")
+	$this <SSID> [-p <ovpn_file>]
+
+$(echo -e "${BOLD}DEFINITION${DEF}")
+	Sets up Wifi for the given SSID
+	Can also bring the VPN up if OVPN file is given
+
+$(echo -e "${BOLD}OPTIONS${DEF}")
+	<ssid>
+		SSID of the Access Point to connect to
+
+	-p, --vpn <ovpn_file>
+		Specify that the script should attempt to make a VPN connection after setting up WiFi, using the given ovpn file
+		If no file is given then /etc/openvpn/client/default.ovpn is used
+
+"
+
+}
+
+
+while [ -n "$1" ]; do
+	case $1 in
+		-h|--help)
+			usage
+			exit 0
+			;;
+		-p|--vpn)
+			if [ -n "$2" ]; then
+				shift
+				ovpn_file="$1"
+			elif [ -f "$DEFAULT_OVPN" ]; then
+				ovpn_file="$DEFAULT_OVPN"
+			else
+				echo "Error: No OVPN file found."
+				exit -1
+			fi
+			;;
+		*)
+			SSID="$1"
+			;;
+	esac
+	shift
+done
+
+if [ -z "$SSID" ]; then
+	echo "Error: missing SSID argument"
+	echo "Usage: $(basename $0) <ssid> [-p <ovpn_file>]"
+	echo
+	exit -1
+fi
+
+sudo ifconfig wlan0 up
+if sudo iwlist wlan0 scan | grep "$SSID" -q; then
+	echo "Connecting to $SSID..."
+	sudo iwconfig wlan0 essid $SSID
+	sudo dhclient wlan0
+
+	if [ -f "$ovpn_file" ]; then
+		echo "Setting up VPN..."
+		sudo service openvpn start
+		sudo openvpn --config "$ovpn_file"
+	fi
+else
+	echo "Error: $SSID not found!"
+	exit 1
+fi
+
+
+
+
