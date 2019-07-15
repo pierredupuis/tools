@@ -1,6 +1,10 @@
 # tools
 Useful configurations, scripts, files, ...
 
+The 'deploy' script will set up everything in your system. Use `./deploy -h` for more information.
+
+Or if you want everything up and working fast, simply run `./deploy --bash-import`.
+
 ## Scripts
 
 ### bash
@@ -17,9 +21,18 @@ Useful configurations, scripts, files, ...
 * to_clip: Copies the given string into the clipboard (Windows)
 
 
-
 ---
-### Configuration files
+## Configuration files
 
 * vimrc: Basic configuration file for vim
 
+---
+## bashrc
+* Aliases
+  * git
+  * ls
+  * tmux
+  * other
+* Shell colors
+* Functions
+* prompt
