@@ -14,7 +14,7 @@ $(echo -e ${BOLD}DESCRIPTION${DEFAULT})
 
 $(echo -e ${BOLD}OPTIONS${DEFAULT})
 	-a, --all
-		Perform all operations, without prompt.
+		Perform all operations, but with prompt.
 		This is the default behavior if no arguments are given.
 		Note: Will also add '.bonus' import in bashrc.
 
@@ -28,7 +28,6 @@ $(echo -e ${BOLD}OPTIONS${DEFAULT})
 	-c, --config
 		Set up configuration files.
 		You will be prompted for confirmation for each configuration file.
-		Alternatively, use '-c all' to copy every file and skip prompts
 
 	-s, --scripts
 		Set up scripts.
@@ -97,7 +96,7 @@ deploy_bashrc() {
 
 deploy_config() {
 	echo "> Deploying Configuration..."
-	
+
 	if confirm ">> Deploy vimrc?"; then
 		cp config/vimrc /etc/vim/vimrc
 	fi
@@ -135,8 +134,8 @@ while [ ! -z "$1" ]; do
 			usage
 			;;
 		-a|--all)
-			deploy_bashrc all
-			deploy_config all
+			deploy_bashrc
+			deploy_config
 			deploy_scripts
 			;;
 		-b|--bash|--bashrc)
