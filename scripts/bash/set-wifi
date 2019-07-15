@@ -33,7 +33,7 @@ $(echo -e "${BOLD}OPTIONS${DEF}")
 
 list_ssid() {
 	sudo ifconfig wlan0 up
-	sudo iwlist wlan0 scan | grep -E "(Quality|Encryption|ESSID)" --color=never
+	sudo iwlist wlan0 scan | grep -E "(Quality|Encryption|ESSID).*" --color=never -o
 }
 
 while [ -n "$1" ]; do
