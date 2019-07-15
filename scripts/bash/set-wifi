@@ -31,6 +31,10 @@ $(echo -e "${BOLD}OPTIONS${DEF}")
 
 }
 
+list_ssid() {
+	sudo ifconfig wlan0 up
+	sudo iwlist wlan0 scan | grep -E "(Quality|Encryption|ESSID).*" --color=never -o | sed '/.*ESSID.*/G;'
+}
 
 while [ -n "$1" ]; do
 	case $1 in
@@ -49,6 +53,10 @@ while [ -n "$1" ]; do
 				exit -1
 			fi
 			;;
+		-l|--list-ssid)
+			list_ssid
+			exit 0
+			;;
 		*)
 			SSID="$1"
 			;;
@@ -63,8 +71,7 @@ if [ -z "$SSID" ]; then
 	exit -1
 fi
 
-sudo ifconfig wlan0 up
-if sudo iwlist wlan0 scan | grep "$SSID" -q; then
+if list_ssid | grep "$SSID" -q; then
 	echo "Connecting to $SSID..."
 	sudo iwconfig wlan0 essid $SSID
 	sudo dhclient wlan0
