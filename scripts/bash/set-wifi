@@ -53,6 +53,10 @@ while [ -n "$1" ]; do
 				exit -1
 			fi
 			;;
+		-l|--list-ssid)
+			list_ssid
+			exit 0
+			;;
 		*)
 			SSID="$1"
 			;;
