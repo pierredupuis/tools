@@ -159,6 +159,10 @@ while [ -n "$1" ]; do
 			shift
 			if [ -d "$1" ]; then
 				OUT_DIR="$1"
+			elif mkdir -p "$1"; then
+				echo "Directory created"
+			else
+				echo "Error: Directory does not exist and could not be created"
 			fi
 			;;
 		-s|--summary)
