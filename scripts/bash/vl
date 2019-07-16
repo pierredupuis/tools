@@ -155,6 +155,12 @@ case $1 in
 		init $*
 		exit $?
 		;;
+	-o|--output)
+		shift
+		if [ -d "$1" ]; then
+			OUT_DIR="$1"
+		fi
+		;;
 	-s|--summary)
 		shift
 		summary $*
