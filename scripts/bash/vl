@@ -18,8 +18,8 @@ $(echo -e "${BOLD}SUMMARY${DEF}")
 
 $(echo -e "${BOLD}USAGE${DEF}")
 	$this [-i|--init]
-	$this -s|--summary
-	$this [-t|--tee] <plugin> <plugin_options>
+	$this [-o <out_dir>] -s|--summary
+	$this [[-o <out_dir>] -t] <plugin> <plugin_options>
 
 $(echo -e "${BOLD}DEFINITION${DEF}")
 	Relieve the user from having to specify the profile and memory dump file on each volatility command.
@@ -33,14 +33,18 @@ $(echo -e "${BOLD}OPTIONS${DEF}")
 	-h, --help
 		Show this message
 
+	-o, --output <output_dir>
+		When the output of a plugin is sent to a file - either by tee (-t) or when using summary (-s) - select the directory where the file will be created
+		WARNING: this option has to be used before any other command in order to work
+
 	-i, --init [<memorydump_file> [<profile>]]
 		Inititalize values for the memory-dump file and the profile.
-		***You can either specify them following the argument or the script will prompt for them.
+		You can either specify them following the argument or the script will prompt for them.
 		Any incorrect value will provoke an error when trying to run a plugin.
 
 	-s, --summary [windows|linux|mac]
 		Run a selection of plugins and output the result in corresponding files.
-		***Plugins are OS-sensitive. By default, windows is used but you can specify linux or mac after the argument to change that.
+		Plugins are OS-sensitive. By default, windows is used but you can specify linux or mac after the argument to change that.
 
 	<plugin> <plugin_options>
 		Get the profile from .profile, the memory dump from .memdump and run the plugin.
@@ -49,7 +53,6 @@ $(echo -e "${BOLD}OPTIONS${DEF}")
 	-t, --tee
 		When running a plugin, also outputs the results in a file.
 
-*** In Development
 "
 
 
