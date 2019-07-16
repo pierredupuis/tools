@@ -57,16 +57,16 @@ $(echo -e "${BOLD}OPTIONS${DEF}")
 
 run_win() {
 	echo "Executing plugin $1..."
-	volatility -f "$memdump" --profile "$profile" $* > "$1"
+	volatility -f "$memdump" --profile "$profile" $* > "$OUT_DIR/$1"
 }
 
 run_linux() {
 	echo "Executing plugin $1..."
-	volatility -f "$memdump" --profile "linux_$profile" $* > "$1"
+	volatility -f "$memdump" --profile "linux_$profile" $* > "$OUT_DIR/$1"
 }
 run_mac() {
 	echo "Executing plugin $1..."
-	volatility -f "$memdump" --profile "mac_$profile" $* > "$1"
+	volatility -f "$memdump" --profile "mac_$profile" $* > "$OUT_DIR/$1"
 }
 
 init(){
@@ -135,8 +135,8 @@ cmd() {
 }
 
 cmdtee() {
-	echo "volatility -f $memdump --profile $profile $* | tee $1"
-	volatility -f "$memdump" --profile "$profile" $* | tee $1
+	echo "volatility -f $memdump --profile $profile $* | tee \"$OUT_DIR/$1\""
+	volatility -f "$memdump" --profile "$profile" $* | tee "$OUT_DIR/$1"
 }
 
 if [ -f ".profile" ]; then
