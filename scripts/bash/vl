@@ -148,6 +148,19 @@ fi
 if [ -f ".memdump" ]; then
 	memdump=$(cat ".memdump")
 fi
+
+# If no argument is given, either init a case or display the existing one
+if [ -z "$1" ]; then
+	if [ -z "$profile" ] || [ -z "$memdump" ]; then
+		init
+	else
+		echo " > Found memdump: $memdump"
+		echo " > Found profile: $profile"
+		echo
+	fi
+	exit 0
+fi
+
 while [ -n "$1" ]; do
 	case $1 in
 		-h|--help)
@@ -177,16 +190,6 @@ while [ -n "$1" ]; do
 		-t|--tee)
 			shift;
 			cmdtee $*
-			;;
-		"")
-			if [ -z "$profile" ] || [ -z "$memdump" ]; then
-				init
-			else
-				echo " > Found memdump: $memdump"
-				echo " > Found profile: $profile"
-				echo
-				exit 0
-			fi
 			;;
 		*) cmd $* ;;
 	esac
