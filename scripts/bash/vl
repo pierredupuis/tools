@@ -4,6 +4,7 @@ WIN_SUMMARY="filescan pslist handles iehistory hashdump truecryptsummary devicet
 LINUX_SUMMARY="pslist psaux lsof bash netstat ifconfig dmesg mount enumerate_files"
 MAC_SUMMARY="pslist psaux lsof bash netstat ifconfig dmesg keychaindump mount list_files adium calendar contacts"
 
+OUT_DIR="."
 
 usage() {
 	DEF="\e[0;39m"
@@ -17,8 +18,8 @@ $(echo -e "${BOLD}SUMMARY${DEF}")
 
 $(echo -e "${BOLD}USAGE${DEF}")
 	$this [-i|--init]
-	$this -s|--summary
-	$this [-t|--tee] <plugin> <plugin_options>
+	$this [-o <out_dir>] -s|--summary
+	$this [[-o <out_dir>] -t] <plugin> <plugin_options>
 
 $(echo -e "${BOLD}DEFINITION${DEF}")
 	Relieve the user from having to specify the profile and memory dump file on each volatility command.
@@ -32,14 +33,18 @@ $(echo -e "${BOLD}OPTIONS${DEF}")
 	-h, --help
 		Show this message
 
+	-o, --output <output_dir>
+		When the output of a plugin is sent to a file - either by tee (-t) or when using summary (-s) - select the directory where the file will be created
+		WARNING: this option has to be used before any other command in order to work
+
 	-i, --init [<memorydump_file> [<profile>]]
 		Inititalize values for the memory-dump file and the profile.
-		***You can either specify them following the argument or the script will prompt for them.
+		You can either specify them following the argument or the script will prompt for them.
 		Any incorrect value will provoke an error when trying to run a plugin.
 
 	-s, --summary [windows|linux|mac]
 		Run a selection of plugins and output the result in corresponding files.
-		***Plugins are OS-sensitive. By default, windows is used but you can specify linux or mac after the argument to change that.
+		Plugins are OS-sensitive. By default, windows is used but you can specify linux or mac after the argument to change that.
 
 	<plugin> <plugin_options>
 		Get the profile from .profile, the memory dump from .memdump and run the plugin.
@@ -48,24 +53,32 @@ $(echo -e "${BOLD}OPTIONS${DEF}")
 	-t, --tee
 		When running a plugin, also outputs the results in a file.
 
-*** In Development
 "
 
 
 }
 
 run_win() {
-	echo "Executing plugin $1..."
-	volatility -f "$memdump" --profile "$profile" $* > "$1"
+	plg="$1"
+	shift
+
+	echo "Executing plugin $plg..."
+	volatility -f "$memdump" --profile "$profile" "$plg" $* > "$OUT_DIR/$plg"
 }
 
 run_linux() {
-	echo "Executing plugin $1..."
-	volatility -f "$memdump" --profile "linux_$profile" $* > "$1"
+	plg="$1"
+	shift
+
+	echo "Executing plugin linux_$plg..."
+	volatility -f "$memdump" --profile "$profile" "linux_$plg" $* > "$OUT_DIR/$plg"
 }
 run_mac() {
-	echo "Executing plugin $1..."
-	volatility -f "$memdump" --profile "mac_$profile" $* > "$1"
+	plg="$1"
+	shift
+
+	echo "Executing plugin mac_$plg..."
+	volatility -f "$memdump" --profile "$profile" "mac_$plg" $* > "$OUT_DIR/$plg"
 }
 
 init(){
@@ -119,7 +132,7 @@ summary() {
 			;;
 		"mac")
 			for plg in $MAC_SUMMARY; do
-				run_linux $plg
+				run_mac $plg
 			done
 			;;
 		*)
@@ -134,8 +147,8 @@ cmd() {
 }
 
 cmdtee() {
-	echo "volatility -f $memdump --profile $profile $* | tee $1"
-	volatility -f "$memdump" --profile "$profile" $* | tee $1
+	echo "volatility -f $memdump --profile $profile $* | tee \"$OUT_DIR/$1\""
+	volatility -f "$memdump" --profile "$profile" $* | tee "$OUT_DIR/$1"
 }
 
 if [ -f ".profile" ]; then
@@ -145,34 +158,55 @@ if [ -f ".memdump" ]; then
 	memdump=$(cat ".memdump")
 fi
 
-case $1 in
-	-h|--help)
-		usage;
-		exit 0
-		;;
-	-i|--init)
-		shift
-		init $*
-		exit $?
-		;;
-	-s|--summary)
-		shift
-		summary $*
-		exit $?
-		;;
-	-t|--tee)
-		shift;
-		cmdtee $*
-		;;
-	"")
-		if [ -z "$profile" ] || [ -z "$memdump" ]; then
-			init
-		else
-			echo " > Found memdump: $memdump"
-			echo " > Found profile: $profile"
-			echo
+# If no argument is given, either init a case or display the existing one
+if [ -z "$1" ]; then
+	if [ -z "$profile" ] || [ -z "$memdump" ]; then
+		init
+	else
+		echo " > Found memdump: $memdump"
+		echo " > Found profile: $profile"
+		echo
+	fi
+	exit 0
+fi
+
+while [ -n "$1" ]; do
+	case $1 in
+		-h|--help)
+			usage;
 			exit 0
-		fi
-		;;
-	*) cmd $* ;;
-esac
+			;;
+		-i|--init)
+			shift
+			init $*
+			exit $?
+			;;
+		-o|--output)
+			shift
+			if [ -d "$1" ]; then
+				OUT_DIR="$1"
+			elif mkdir -p "$1"; then
+				echo "Directory created"
+			else
+				echo "Error: Directory does not exist and could not be created"
+			fi
+			;;
+		-s|--summary)
+			shift
+			summary $*
+			exit $?
+			;;
+		-t|--tee)
+			shift;
+			cmdtee $*
+			exit $?
+			;;
+		*) 
+			cmd $*
+			exit $?
+			;;
+	esac
+	shift
+done
+
+
