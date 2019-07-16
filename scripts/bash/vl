@@ -144,41 +144,45 @@ fi
 if [ -f ".memdump" ]; then
 	memdump=$(cat ".memdump")
 fi
-
-case $1 in
-	-h|--help)
-		usage;
-		exit 0
-		;;
-	-i|--init)
-		shift
-		init $*
-		exit $?
-		;;
-	-o|--output)
-		shift
-		if [ -d "$1" ]; then
-			OUT_DIR="$1"
-		fi
-		;;
-	-s|--summary)
-		shift
-		summary $*
-		exit $?
-		;;
-	-t|--tee)
-		shift;
-		cmdtee $*
-		;;
-	"")
-		if [ -z "$profile" ] || [ -z "$memdump" ]; then
-			init
-		else
-			echo " > Found memdump: $memdump"
-			echo " > Found profile: $profile"
-			echo
+while [ -n "$1" ]; do
+	case $1 in
+		-h|--help)
+			usage;
 			exit 0
-		fi
-		;;
-	*) cmd $* ;;
-esac
+			;;
+		-i|--init)
+			shift
+			init $*
+			exit $?
+			;;
+		-o|--output)
+			shift
+			if [ -d "$1" ]; then
+				OUT_DIR="$1"
+			fi
+			;;
+		-s|--summary)
+			shift
+			summary $*
+			exit $?
+			;;
+		-t|--tee)
+			shift;
+			cmdtee $*
+			;;
+		"")
+			if [ -z "$profile" ] || [ -z "$memdump" ]; then
+				init
+			else
+				echo " > Found memdump: $memdump"
+				echo " > Found profile: $profile"
+				echo
+				exit 0
+			fi
+			;;
+		*) cmd $* ;;
+	esac
+
+done
+
+
