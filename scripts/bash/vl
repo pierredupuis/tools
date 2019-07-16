@@ -4,6 +4,7 @@ WIN_SUMMARY="filescan pslist handles iehistory hashdump truecryptsummary devicet
 LINUX_SUMMARY="pslist psaux lsof bash netstat ifconfig dmesg mount enumerate_files"
 MAC_SUMMARY="pslist psaux lsof bash netstat ifconfig dmesg keychaindump mount list_files adium calendar contacts"
 
+OUT_DIR="."
 
 usage() {
 	DEF="\e[0;39m"
