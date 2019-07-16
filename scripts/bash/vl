@@ -132,7 +132,7 @@ summary() {
 			;;
 		"mac")
 			for plg in $MAC_SUMMARY; do
-				run_linux $plg
+				run_mac $plg
 			done
 			;;
 		*)
