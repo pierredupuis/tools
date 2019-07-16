@@ -70,14 +70,14 @@ run_linux() {
 	plg="$1"
 	shift
 
-	echo "Executing plugin $plg..."
+	echo "Executing plugin linux_$plg..."
 	volatility -f "$memdump" --profile "$profile" "linux_$plg" $* > "$OUT_DIR/$plg"
 }
 run_mac() {
 	plg="$1"
 	shift
 
-	echo "Executing plugin $plg..."
+	echo "Executing plugin mac_$plg..."
 	volatility -f "$memdump" --profile "$profile" "mac_$plg" $* > "$OUT_DIR/$plg"
 }
 
