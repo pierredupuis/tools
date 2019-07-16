@@ -59,17 +59,26 @@ $(echo -e "${BOLD}OPTIONS${DEF}")
 }
 
 run_win() {
-	echo "Executing plugin $1..."
-	volatility -f "$memdump" --profile "$profile" $* > "$OUT_DIR/$1"
+	plg="$1"
+	shift
+
+	echo "Executing plugin $plg..."
+	volatility -f "$memdump" --profile "$profile" "$plg" $* > "$OUT_DIR/$plg"
 }
 
 run_linux() {
-	echo "Executing plugin $1..."
-	volatility -f "$memdump" --profile "linux_$profile" $* > "$OUT_DIR/$1"
+	plg="$1"
+	shift
+
+	echo "Executing plugin $plg..."
+	volatility -f "$memdump" --profile "$profile" "linux_$plg" $* > "$OUT_DIR/$plg"
 }
 run_mac() {
-	echo "Executing plugin $1..."
-	volatility -f "$memdump" --profile "mac_$profile" $* > "$OUT_DIR/$1"
+	plg="$1"
+	shift
+
+	echo "Executing plugin $plg..."
+	volatility -f "$memdump" --profile "$profile" "mac_$plg" $* > "$OUT_DIR/$plg"
 }
 
 init(){
