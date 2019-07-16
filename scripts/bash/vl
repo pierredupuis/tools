@@ -199,8 +199,12 @@ while [ -n "$1" ]; do
 		-t|--tee)
 			shift;
 			cmdtee $*
+			exit $?
 			;;
-		*) cmd $* ;;
+		*) 
+			cmd $*
+			exit $?
+			;;
 	esac
 	shift
 done
