@@ -183,14 +183,6 @@ cmdtee() {
 	volatility -f "$memdump" --profile "$profile" $* | tee "$resdir/$1"
 }
 
-if [ -f ".vl" ]; then
-	read_conf
-else
-	init
-	exit 0
-fi
-
-
 # Parse script options until the end or action found
 while [ -n "$1" ] && [ -z "$action" ]; do
 	case $1 in
@@ -207,6 +199,14 @@ while [ -n "$1" ] && [ -z "$action" ]; do
 	esac
 	shift
 done
+
+# If .vl exists, read it. Otherwise initialize then exit.
+if [ -f ".vl" ]; then
+	read_conf
+else
+	init
+	exit 0
+fi
 
 # If no action is given, prints configuration
 if [ -z "$action" ]; then
