@@ -108,7 +108,6 @@ print_conf() {
 	echo "Results directory: $resdir"
 }
 
-
 init(){
 	# Get memdump, profile and resutls directory from arguments if here
 	memdump="$1"
@@ -183,20 +182,14 @@ cmdtee() {
 	volatility -f "$memdump" --profile "$profile" $* | tee "$OUT_DIR/$1"
 }
 
-if [ -f ".profile" ]; then
-	profile=$(cat ".profile")
-fi
-if [ -f ".memdump" ]; then
-	memdump=$(cat ".memdump")
-fi
+read_conf
 
 # If no argument is given, either init a case or display the existing one
 if [ -z "$1" ]; then
 	if [ -z "$profile" ] || [ -z "$memdump" ]; then
 		init
 	else
-		echo " > Found memdump: $memdump"
-		echo " > Found profile: $profile"
+		print_conf
 		echo
 	fi
 	exit 0
