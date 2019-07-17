@@ -21,36 +21,39 @@ $(echo -e "${BOLD}USAGE${DEF}")
 	$this [-t|--tee] <vol_plugin> <plugin_options>
 
 $(echo -e "${BOLD}DEFINITION${DEF}")
-	Relieve the user from having to specify the profile and memory dump file on each volatility command.
+	Relieve the user from having to specify the profile and memory dump file on each volatility command. Also store the output of volatility plugins in files.
 
-	The init argument let you set these options. They will be kept in the '.vl' file
-	This means the script is directory-specific, it is not possible to remember two different cases stored in a single directory.
-
-	The script needs 3 things:
+	The script's configuration needs 3 things:
 	 - Memory dump file
 	 - Volatility profile
 	 - Results directory (defaults to current directory)
+	
+	The 'init' action let you set these permanently. They will be kept in the '.vl' file in the current directory, this location cannot be changed.
+	This means the script is directory-specific, it is not possible to remember two different cases stored in a single directory.
+
+	The Results Directory specify where to put files containing volatility plugin outputs.
 
 $(echo -e "${BOLD}SCRIPT OPTIONS${DEF}")
 	-h, --help
-		Show this message
+		Show this message.
 
 	-t, --tee
 		When running a plugin, also outputs the results in a file.
-		This file will be located in the Results Directory given in the configuration.
+		This file will be written in the Results Directory given in the configuration.
 
 $(echo -e "${BOLD}ACTIONS & ACTIONS OPTIONS${DEF}")
 	<plugin> <plugin_options>
-		Run the given volatility profile.
+		Run the given volatility plugin.
 		Any argument given after this action is relayed to the volatility command line.
+		Use the script option -t/--tee (before the action) to use tee and store the output.
 
 	init [<memory_dump_file> [<profile> [<results_dir>]]]
 		Inititalize configuration values.
 		You can specify them following the argument, in this exact order.
-		If one is missing or empty the script will prompt for it.
+		If one is missing or empty the script will prompt for it. You can only omit options starting by the last.
 
 	summary [windows|linux|mac]
-		Run a selection of plugins and output the result in corresponding files. Those files will be located in the Results Directory given in the configuration
+		Run a selection of plugins and output the result in corresponding files. Those files will be located in the Results Directory given in the configuration.
 		Plugins are OS-sensitive. By default, windows is used but you can specify linux or mac after the argument to change that.
 		Warning: Volatility plugins that are creating files themselves will not do so in the Results Directory unless you tell them. It usually concerns the dump plugins, here you can use the plugin option -D <dump-dir>. Refer to the volatility documentation for more details.
 
