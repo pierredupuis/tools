@@ -82,27 +82,32 @@ run_mac() {
 }
 
 init(){
-	# Get memdump and profile from argument if here
-	if [ ! -z "$1" ]; then
-		memdump="$1"
-		if [ ! -z "$2" ]; then
-			profile=$2
-		fi
-	fi
+	# Get memdump, profile and resutls directory from arguments if here
+	memdump="$1"
+	profile="$2"
+	resdir="$3"
 
-	# Get memdump and profile from user if missing
+	# Get memdump from user if missing
 	if [ -z "$1" ]; then
-		ls
 		read -p "Memory dump file: " memdump
 	fi
+	# Get profile from user if missing
 	if [ -z "$2" ]; then
 		volatility -f "$memdump" imageinfo | grep "Suggested"
 		read -p "Use profile: " profile
 	fi
+	# Get result directory from user if missing
+	if [ -z "$3" ]; then
+		read -p "Results directory: [.] " resdir
+		if [ -z "$resdir" ]; then
+			resdir="."
+		fi
+	fi
 	
-	# Write memdump and profile to files
-	echo -n "$profile" > ".profile"
-	echo -n "$memdump" > ".memdump"
+	# Write to configuration files
+	echo "profile:$profile" > ".vl"
+	echo "memdump:$memdump" >> ".vl"
+	echo "resdir:$resdir" >> ".vl"
 }
 summary() {
 	if [ -z "$1" ]; then
