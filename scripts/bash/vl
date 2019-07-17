@@ -4,8 +4,6 @@ WIN_SUMMARY="filescan pslist handles iehistory hashdump truecryptsummary devicet
 LINUX_SUMMARY="pslist psaux lsof bash netstat ifconfig dmesg mount enumerate_files"
 MAC_SUMMARY="pslist psaux lsof bash netstat ifconfig dmesg keychaindump mount list_files adium calendar contacts"
 
-OUT_DIR="."
-
 usage() {
 	DEF="\e[0;39m"
 	BOLD="\e[1m"
@@ -63,7 +61,7 @@ run_win() {
 	shift
 
 	echo "Executing plugin $plg..."
-	volatility -f "$memdump" --profile "$profile" "$plg" $* > "$OUT_DIR/$plg"
+	volatility -f "$memdump" --profile "$profile" "$plg" $* > "$resdir/$plg"
 }
 
 run_linux() {
@@ -71,39 +69,70 @@ run_linux() {
 	shift
 
 	echo "Executing plugin linux_$plg..."
-	volatility -f "$memdump" --profile "$profile" "linux_$plg" $* > "$OUT_DIR/$plg"
+	volatility -f "$memdump" --profile "$profile" "linux_$plg" $* > "$resdir/$plg"
 }
 run_mac() {
 	plg="$1"
 	shift
 
 	echo "Executing plugin mac_$plg..."
-	volatility -f "$memdump" --profile "$profile" "mac_$plg" $* > "$OUT_DIR/$plg"
+	volatility -f "$memdump" --profile "$profile" "mac_$plg" $* > "$resdir/$plg"
+}
+
+write_conf() {
+	if [ -n "$1" ] && [ -n "$2" ] && [ -n "$3" ]; then
+		echo "profile:$1" > ".vl"
+		echo "memdump:$2" >> ".vl"
+		echo "resdir:$3" >> ".vl"
+	else
+		return -1
+	fi
+}
+
+read_conf() {
+	if [ -f ".vl" ]; then
+		# Get the corresponding line then select the value
+		profile=$(grep 'profile:' '.vl' | cut -d':' -f 2)
+		memdump=$(grep 'memdump:' '.vl' | cut -d':' -f 2)
+		resdir=$(grep 'resdir:' '.vl' | cut -d':' -f 2)
+	else
+		return -1
+	fi
+}
+
+print_conf() {
+	echo "Profile: $profile"
+	echo "Memory dump: $memdump"
+	echo "Results directory: $resdir"
 }
 
 init(){
-	# Get memdump and profile from argument if here
-	if [ ! -z "$1" ]; then
-		memdump="$1"
-		if [ ! -z "$2" ]; then
-			profile=$2
-		fi
-	fi
+	# Get memdump, profile and resutls directory from arguments if here
+	memdump="$1"
+	profile="$2"
+	resdir="$3"
 
-	# Get memdump and profile from user if missing
+	# Get memdump from user if missing
 	if [ -z "$1" ]; then
-		ls
 		read -p "Memory dump file: " memdump
 	fi
+	# Get profile from user if missing
 	if [ -z "$2" ]; then
 		volatility -f "$memdump" imageinfo | grep "Suggested"
 		read -p "Use profile: " profile
 	fi
+	# Get result directory from user if missing
+	if [ -z "$3" ]; then
+		read -p "Results directory: [.] " resdir
+		if [ -z "$resdir" ]; then
+			resdir="."
+		fi
+	fi
 	
-	# Write memdump and profile to files
-	echo -n "$profile" > ".profile"
-	echo -n "$memdump" > ".memdump"
+	# Write to configuration files
+	write_conf "$profile" "$memdump" "$resdir"
 }
+
 summary() {
 	if [ -z "$1" ]; then
 		os="windows"
@@ -147,15 +176,15 @@ cmd() {
 }
 
 cmdtee() {
-	echo "volatility -f $memdump --profile $profile $* | tee \"$OUT_DIR/$1\""
-	volatility -f "$memdump" --profile "$profile" $* | tee "$OUT_DIR/$1"
+	echo "volatility -f $memdump --profile $profile $* | tee \"$resdir/$1\""
+	volatility -f "$memdump" --profile "$profile" $* | tee "$resdir/$1"
 }
 
-if [ -f ".profile" ]; then
-	profile=$(cat ".profile")
-fi
-if [ -f ".memdump" ]; then
-	memdump=$(cat ".memdump")
+if [ -f ".vl" ]; then
+	read_conf
+else
+	init
+	exit 0
 fi
 
 # If no argument is given, either init a case or display the existing one
@@ -163,8 +192,7 @@ if [ -z "$1" ]; then
 	if [ -z "$profile" ] || [ -z "$memdump" ]; then
 		init
 	else
-		echo " > Found memdump: $memdump"
-		echo " > Found profile: $profile"
+		print_conf
 		echo
 	fi
 	exit 0
@@ -180,16 +208,6 @@ while [ -n "$1" ]; do
 			shift
 			init $*
 			exit $?
-			;;
-		-o|--output)
-			shift
-			if [ -d "$1" ]; then
-				OUT_DIR="$1"
-			elif mkdir -p "$1"; then
-				echo "Directory created"
-			else
-				echo "Error: Directory does not exist and could not be created"
-			fi
 			;;
 		-s|--summary)
 			shift
