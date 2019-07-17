@@ -61,7 +61,7 @@ run_win() {
 	shift
 
 	echo "Executing plugin $plg..."
-	volatility -f "$memdump" --profile "$profile" "$plg" $* > "$OUT_DIR/$plg"
+	volatility -f "$memdump" --profile "$profile" "$plg" $* > "$resdir/$plg"
 }
 
 run_linux() {
@@ -69,14 +69,14 @@ run_linux() {
 	shift
 
 	echo "Executing plugin linux_$plg..."
-	volatility -f "$memdump" --profile "$profile" "linux_$plg" $* > "$OUT_DIR/$plg"
+	volatility -f "$memdump" --profile "$profile" "linux_$plg" $* > "$resdir/$plg"
 }
 run_mac() {
 	plg="$1"
 	shift
 
 	echo "Executing plugin mac_$plg..."
-	volatility -f "$memdump" --profile "$profile" "mac_$plg" $* > "$OUT_DIR/$plg"
+	volatility -f "$memdump" --profile "$profile" "mac_$plg" $* > "$resdir/$plg"
 }
 
 write_conf() {
@@ -176,8 +176,8 @@ cmd() {
 }
 
 cmdtee() {
-	echo "volatility -f $memdump --profile $profile $* | tee \"$OUT_DIR/$1\""
-	volatility -f "$memdump" --profile "$profile" $* | tee "$OUT_DIR/$1"
+	echo "volatility -f $memdump --profile $profile $* | tee \"$resdir/$1\""
+	volatility -f "$memdump" --profile "$profile" $* | tee "$resdir/$1"
 }
 
 read_conf
