@@ -4,8 +4,6 @@ WIN_SUMMARY="filescan pslist handles iehistory hashdump truecryptsummary devicet
 LINUX_SUMMARY="pslist psaux lsof bash netstat ifconfig dmesg mount enumerate_files"
 MAC_SUMMARY="pslist psaux lsof bash netstat ifconfig dmesg keychaindump mount list_files adium calendar contacts"
 
-OUT_DIR="."
-
 usage() {
 	DEF="\e[0;39m"
 	BOLD="\e[1m"
@@ -205,16 +203,6 @@ while [ -n "$1" ]; do
 			shift
 			init $*
 			exit $?
-			;;
-		-o|--output)
-			shift
-			if [ -d "$1" ]; then
-				OUT_DIR="$1"
-			elif mkdir -p "$1"; then
-				echo "Directory created"
-			else
-				echo "Error: Directory does not exist and could not be created"
-			fi
 			;;
 		-s|--summary)
 			shift
