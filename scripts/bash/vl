@@ -102,6 +102,13 @@ read_conf() {
 	fi
 }
 
+print_conf() {
+	echo "Profile: $profile"
+	echo "Memory dump: $memdump"
+	echo "Results directory: $resdir"
+}
+
+
 init(){
 	# Get memdump, profile and resutls directory from arguments if here
 	memdump="$1"
