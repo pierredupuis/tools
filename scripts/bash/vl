@@ -87,8 +87,8 @@ run_mac() {
 
 write_conf() {
 	if [ -n "$1" ] && [ -n "$2" ] && [ -n "$3" ]; then
-		echo "memdump:$1" >> ".vl"
-		echo "profile:$2" > ".vl"
+		echo "memdump:$1" > ".vl"
+		echo "profile:$2" >> ".vl"
 		echo "resdir:$3" >> ".vl"
 	else
 		return -1
