@@ -91,6 +91,17 @@ write_conf() {
 	fi
 }
 
+read_conf() {
+	if [ -f ".vl" ]; then
+		# Get the corresponding line then select the value
+		profile=$(grep 'profile:' '.vl' | cut -d':' -f 2)
+		memdump=$(grep 'memdump:' '.vl' | cut -d':' -f 2)
+		resdir=$(grep 'resdir:' '.vl' | cut -d':' -f 2)
+	else
+		return -1
+	fi
+}
+
 init(){
 	# Get memdump, profile and resutls directory from arguments if here
 	memdump="$1"
