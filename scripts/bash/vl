@@ -15,41 +15,44 @@ $(echo -e "${BOLD}SUMMARY${DEF}")
 	$this - Automates volatility usage
 
 $(echo -e "${BOLD}USAGE${DEF}")
-	$this [-i|--init]
-	$this [-o <out_dir>] -s|--summary
-	$this [[-o <out_dir>] -t] <plugin> <plugin_options>
+	$this <script_options> <action> <action_options>
+	$this init [<memory_dump_file> [<vol_profile> [<results_dir>]]]
+	$this summary [windows|linux|mac]
+	$this [-t|--tee] <vol_plugin> <plugin_options>
 
 $(echo -e "${BOLD}DEFINITION${DEF}")
 	Relieve the user from having to specify the profile and memory dump file on each volatility command.
 
-	The init argument let you set these options. They will be kept in the following files:
-          Memory dump:  .memdump
-          Profile:      .profile
+	The init argument let you set these options. They will be kept in the '.vl' file
 	This means the script is directory-specific, it is not possible to remember two different cases stored in a single directory.
 
-$(echo -e "${BOLD}OPTIONS${DEF}")
+	The script needs 3 things:
+	 - Memory dump file
+	 - Volatility profile
+	 - Results directory (defaults to current directory)
+
+$(echo -e "${BOLD}SCRIPT OPTIONS${DEF}")
 	-h, --help
 		Show this message
 
-	-o, --output <output_dir>
-		When the output of a plugin is sent to a file - either by tee (-t) or when using summary (-s) - select the directory where the file will be created
-		WARNING: this option has to be used before any other command in order to work
-
-	-i, --init [<memorydump_file> [<profile>]]
-		Inititalize values for the memory-dump file and the profile.
-		You can either specify them following the argument or the script will prompt for them.
-		Any incorrect value will provoke an error when trying to run a plugin.
-
-	-s, --summary [windows|linux|mac]
-		Run a selection of plugins and output the result in corresponding files.
-		Plugins are OS-sensitive. By default, windows is used but you can specify linux or mac after the argument to change that.
-
-	<plugin> <plugin_options>
-		Get the profile from .profile, the memory dump from .memdump and run the plugin.
-		You can give plugin-specific option to add at the end of the volatility command.
-
 	-t, --tee
 		When running a plugin, also outputs the results in a file.
+		This file will be located in the Results Directory given in the configuration.
+
+$(echo -e "${BOLD}ACTIONS & ACTIONS OPTIONS${DEF}")
+	<plugin> <plugin_options>
+		Run the given volatility profile.
+		Any argument given after this action is relayed to the volatility command line.
+
+	init [<memory_dump_file> [<profile> [<results_dir>]]]
+		Inititalize configuration values.
+		You can specify them following the argument, in this exact order.
+		If one is missing or empty the script will prompt for it.
+
+	summary [windows|linux|mac]
+		Run a selection of plugins and output the result in corresponding files. Those files will be located in the Results Directory given in the configuration
+		Plugins are OS-sensitive. By default, windows is used but you can specify linux or mac after the argument to change that.
+		Warning: Volatility plugins that are creating files themselves will not do so in the Results Directory unless you tell them. It usually concerns the dump plugins, here you can use the plugin option -D <dump-dir>. Refer to the volatility documentation for more details.
 
 "
 
