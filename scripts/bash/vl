@@ -15,41 +15,47 @@ $(echo -e "${BOLD}SUMMARY${DEF}")
 	$this - Automates volatility usage
 
 $(echo -e "${BOLD}USAGE${DEF}")
-	$this [-i|--init]
-	$this [-o <out_dir>] -s|--summary
-	$this [[-o <out_dir>] -t] <plugin> <plugin_options>
+	$this <script_options> <action> <action_options>
+	$this init [<memory_dump_file> [<vol_profile> [<results_dir>]]]
+	$this summary [windows|linux|mac]
+	$this [-t|--tee] <vol_plugin> <plugin_options>
 
 $(echo -e "${BOLD}DEFINITION${DEF}")
-	Relieve the user from having to specify the profile and memory dump file on each volatility command.
+	Relieve the user from having to specify the profile and memory dump file on each volatility command. Also store the output of volatility plugins in files.
 
-	The init argument let you set these options. They will be kept in the following files:
-          Memory dump:  .memdump
-          Profile:      .profile
+	The script's configuration needs 3 things:
+	 - Memory dump file
+	 - Volatility profile
+	 - Results directory (defaults to current directory)
+	
+	The 'init' action let you set these permanently. They will be kept in the '.vl' file in the current directory, this location cannot be changed.
 	This means the script is directory-specific, it is not possible to remember two different cases stored in a single directory.
 
-$(echo -e "${BOLD}OPTIONS${DEF}")
+	The Results Directory specify where to put files containing volatility plugin outputs.
+
+$(echo -e "${BOLD}SCRIPT OPTIONS${DEF}")
 	-h, --help
-		Show this message
-
-	-o, --output <output_dir>
-		When the output of a plugin is sent to a file - either by tee (-t) or when using summary (-s) - select the directory where the file will be created
-		WARNING: this option has to be used before any other command in order to work
-
-	-i, --init [<memorydump_file> [<profile>]]
-		Inititalize values for the memory-dump file and the profile.
-		You can either specify them following the argument or the script will prompt for them.
-		Any incorrect value will provoke an error when trying to run a plugin.
-
-	-s, --summary [windows|linux|mac]
-		Run a selection of plugins and output the result in corresponding files.
-		Plugins are OS-sensitive. By default, windows is used but you can specify linux or mac after the argument to change that.
-
-	<plugin> <plugin_options>
-		Get the profile from .profile, the memory dump from .memdump and run the plugin.
-		You can give plugin-specific option to add at the end of the volatility command.
+		Show this message.
 
 	-t, --tee
 		When running a plugin, also outputs the results in a file.
+		This file will be written in the Results Directory given in the configuration.
+
+$(echo -e "${BOLD}ACTIONS & ACTIONS OPTIONS${DEF}")
+	<plugin> <plugin_options>
+		Run the given volatility plugin.
+		Any argument given after this action is relayed to the volatility command line.
+		Use the script option -t/--tee (before the action) to use tee and store the output.
+
+	init [<memory_dump_file> [<profile> [<results_dir>]]]
+		Inititalize configuration values.
+		You can specify them following the argument, in this exact order.
+		If one is missing or empty the script will prompt for it. You can only omit options starting by the last.
+
+	summary [windows|linux|mac]
+		Run a selection of plugins and output the result in corresponding files. Those files will be located in the Results Directory given in the configuration.
+		Plugins are OS-sensitive. By default, windows is used but you can specify linux or mac after the argument to change that.
+		Warning: Volatility plugins that are creating files themselves will not do so in the Results Directory unless you tell them. It usually concerns the dump plugins, here you can use the plugin option -D <dump-dir>. Refer to the volatility documentation for more details.
 
 "
 
@@ -81,8 +87,8 @@ run_mac() {
 
 write_conf() {
 	if [ -n "$1" ] && [ -n "$2" ] && [ -n "$3" ]; then
-		echo "profile:$1" > ".vl"
-		echo "memdump:$2" >> ".vl"
+		echo "memdump:$1" > ".vl"
+		echo "profile:$2" >> ".vl"
 		echo "resdir:$3" >> ".vl"
 	else
 		return -1
@@ -92,8 +98,8 @@ write_conf() {
 read_conf() {
 	if [ -f ".vl" ]; then
 		# Get the corresponding line then select the value
-		profile=$(grep 'profile:' '.vl' | cut -d':' -f 2)
 		memdump=$(grep 'memdump:' '.vl' | cut -d':' -f 2)
+		profile=$(grep 'profile:' '.vl' | cut -d':' -f 2)
 		resdir=$(grep 'resdir:' '.vl' | cut -d':' -f 2)
 	else
 		return -1
@@ -101,13 +107,13 @@ read_conf() {
 }
 
 print_conf() {
-	echo "Profile: $profile"
 	echo "Memory dump: $memdump"
+	echo "Profile: $profile"
 	echo "Results directory: $resdir"
 }
 
 init(){
-	# Get memdump, profile and resutls directory from arguments if here
+	# Get memdump, profile and results directory from arguments if here
 	memdump="$1"
 	profile="$2"
 	resdir="$3"
@@ -121,7 +127,7 @@ init(){
 		volatility -f "$memdump" imageinfo | grep "Suggested"
 		read -p "Use profile: " profile
 	fi
-	# Get result directory from user if missing
+	# Get results directory from user if missing
 	if [ -z "$3" ]; then
 		read -p "Results directory: [.] " resdir
 		if [ -z "$resdir" ]; then
@@ -130,7 +136,7 @@ init(){
 	fi
 	
 	# Write to configuration files
-	write_conf "$profile" "$memdump" "$resdir"
+	write_conf "$memdump" "$profile" "$resdir"
 }
 
 summary() {
@@ -165,7 +171,7 @@ summary() {
 			done
 			;;
 		*)
-			echo "Error: \"$os\" not recognied"
+			echo "Error: \"$os\" not recognized"
 			exit -1
 		;;
 	esac
@@ -180,6 +186,24 @@ cmdtee() {
 	volatility -f "$memdump" --profile "$profile" $* | tee "$resdir/$1"
 }
 
+# Parse script options until the end or action found
+while [ -n "$1" ] && [ -z "$action" ]; do
+	case $1 in
+		-h|--help)
+			usage;
+			exit 0
+			;;
+		-t|--tee)
+			USE_TEE=1
+			;;
+		*)
+			action=$1
+			;;
+	esac
+	shift
+done
+
+# If .vl exists, read it. Otherwise initialize then exit.
 if [ -f ".vl" ]; then
 	read_conf
 else
@@ -187,44 +211,28 @@ else
 	exit 0
 fi
 
-# If no argument is given, either init a case or display the existing one
-if [ -z "$1" ]; then
-	if [ -z "$profile" ] || [ -z "$memdump" ]; then
-		init
-	else
-		print_conf
-		echo
-	fi
+# If no action is given, print configuration
+if [ -z "$action" ]; then
+	print_conf
+	echo
 	exit 0
 fi
 
-while [ -n "$1" ]; do
-	case $1 in
-		-h|--help)
-			usage;
-			exit 0
-			;;
-		-i|--init)
-			shift
-			init $*
-			exit $?
-			;;
-		-s|--summary)
-			shift
-			summary $*
-			exit $?
-			;;
-		-t|--tee)
-			shift;
+# Parse action
+case $action in
+	init)
+		init $*
+		;;
+	summary)
+		summary $*
+		;;
+	*)
+		if [ "$USE_TEE" == "1" ]; then
 			cmdtee $*
-			exit $?
-			;;
-		*) 
+		else
 			cmd $*
-			exit $?
-			;;
-	esac
-	shift
-done
+		fi
+		;;
+esac
 
 
