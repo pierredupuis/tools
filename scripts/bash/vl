@@ -81,6 +81,16 @@ run_mac() {
 	volatility -f "$memdump" --profile "$profile" "mac_$plg" $* > "$OUT_DIR/$plg"
 }
 
+write_conf() {
+	if [ -n "$1" ] && [ -n "$2" ] && [ -n "$3" ]; then
+		echo "profile:$1" > ".vl"
+		echo "memdump:$2" >> ".vl"
+		echo "resdir:$3" >> ".vl"
+	else
+		return -1
+	fi
+}
+
 init(){
 	# Get memdump, profile and resutls directory from arguments if here
 	memdump="$1"
@@ -105,10 +115,9 @@ init(){
 	fi
 	
 	# Write to configuration files
-	echo "profile:$profile" > ".vl"
-	echo "memdump:$memdump" >> ".vl"
-	echo "resdir:$resdir" >> ".vl"
+	write_conf "$profile" "$memdump" "$resdir"
 }
+
 summary() {
 	if [ -z "$1" ]; then
 		os="windows"
