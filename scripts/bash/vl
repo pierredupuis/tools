@@ -221,7 +221,11 @@ case $action in
 		summary $*
 		;;
 	*)
-		cmd $*
+		if [ "$USE_TEE" == "1" ]; then
+			cmdtee $*
+		else
+			cmd $*
+		fi
 		;;
 esac
 
