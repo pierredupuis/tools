@@ -84,8 +84,8 @@ run_mac() {
 
 write_conf() {
 	if [ -n "$1" ] && [ -n "$2" ] && [ -n "$3" ]; then
-		echo "profile:$1" > ".vl"
-		echo "memdump:$2" >> ".vl"
+		echo "memdump:$1" >> ".vl"
+		echo "profile:$2" > ".vl"
 		echo "resdir:$3" >> ".vl"
 	else
 		return -1
@@ -95,8 +95,8 @@ write_conf() {
 read_conf() {
 	if [ -f ".vl" ]; then
 		# Get the corresponding line then select the value
-		profile=$(grep 'profile:' '.vl' | cut -d':' -f 2)
 		memdump=$(grep 'memdump:' '.vl' | cut -d':' -f 2)
+		profile=$(grep 'profile:' '.vl' | cut -d':' -f 2)
 		resdir=$(grep 'resdir:' '.vl' | cut -d':' -f 2)
 	else
 		return -1
@@ -104,8 +104,8 @@ read_conf() {
 }
 
 print_conf() {
-	echo "Profile: $profile"
 	echo "Memory dump: $memdump"
+	echo "Profile: $profile"
 	echo "Results directory: $resdir"
 }
 
@@ -133,7 +133,7 @@ init(){
 	fi
 	
 	# Write to configuration files
-	write_conf "$profile" "$memdump" "$resdir"
+	write_conf "$memdump" "$profile" "$resdir"
 }
 
 summary() {
