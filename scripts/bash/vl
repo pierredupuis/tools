@@ -211,29 +211,17 @@ while [ -n "$1" ] && [ -z "$action" ]; do
 	shift
 done
 
-while [ -n "$1" ]; do
-	case $1 in
-		-i|--init)
-			shift
-			init $*
-			exit $?
-			;;
-		-s|--summary)
-			shift
-			summary $*
-			exit $?
-			;;
-		-t|--tee)
-			shift;
-			cmdtee $*
-			exit $?
-			;;
-		*) 
-			cmd $*
-			exit $?
-			;;
-	esac
-	shift
-done
+# Parse action
+case $action in
+	init)
+		init $*
+		;;
+	summary)
+		summary $*
+		;;
+	*)
+		cmd $*
+		;;
+esac
 
 
