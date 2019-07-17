@@ -180,7 +180,12 @@ cmdtee() {
 	volatility -f "$memdump" --profile "$profile" $* | tee "$resdir/$1"
 }
 
-read_conf
+if [ -f ".vl" ]; then
+	read_conf
+else
+	init
+	exit 0
+fi
 
 # If no argument is given, either init a case or display the existing one
 if [ -z "$1" ]; then
