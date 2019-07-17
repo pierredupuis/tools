@@ -194,12 +194,25 @@ if [ -z "$1" ]; then
 	exit 0
 fi
 
-while [ -n "$1" ]; do
+# Parse script options until the end or action found
+while [ -n "$1" ] && [ -z "$action" ]; do
 	case $1 in
 		-h|--help)
 			usage;
 			exit 0
 			;;
+		-t|--tee)
+			USE_TEE=1
+			;;
+		*)
+			action=$1
+			;;
+	esac
+	shift
+done
+
+while [ -n "$1" ]; do
+	case $1 in
 		-i|--init)
 			shift
 			init $*
