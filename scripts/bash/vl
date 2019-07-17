@@ -187,12 +187,6 @@ else
 	exit 0
 fi
 
-# If no argument is given, prints configuration
-if [ -z "$1" ]; then
-	print_conf
-	echo
-	exit 0
-fi
 
 # Parse script options until the end or action found
 while [ -n "$1" ] && [ -z "$action" ]; do
@@ -210,6 +204,13 @@ while [ -n "$1" ] && [ -z "$action" ]; do
 	esac
 	shift
 done
+
+# If no action is given, prints configuration
+if [ -z "$action" ]; then
+	print_conf
+	echo
+	exit 0
+fi
 
 # Parse action
 case $action in
