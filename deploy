@@ -125,6 +125,36 @@ deploy_scripts() {
 	fi
 }
 
+if [ -z "$1" ]; then
+	echo "Deploy: "
+	echo " 1. ALL"
+	echo " 2. bashrc"
+	echo " 3. config"
+	echo " 4. scripts"
+	echo " 5. exit"
+	read -p "? " res
+
+	case "$res" in 
+		"1")
+			deploy_bashrc
+			deploy_config
+			deploy_scripts
+			;;
+		"2")
+			deploy_bashrc
+			;;
+		"3")
+			deploy_config
+			;;
+		"4")
+			deploy_scripts
+			;;
+		*)
+			exit 0
+			;;
+	esac
+	exit 0
+fi
 
 ### Parse arguments
 

@@ -228,9 +228,9 @@ case $action in
 		;;
 	*)
 		if [ "$USE_TEE" == "1" ]; then
-			cmdtee $*
+			cmdtee $action $*
 		else
-			cmd $*
+			cmd $action $*
 		fi
 		;;
 esac
