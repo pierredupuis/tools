@@ -1,5 +1,13 @@
 ## bash
 
+### cmdit
+
+Quickly edit script in PATH
+
+```bash
+cmdit <script_name>
+```
+
 ### vl
 
 Automates volatility tasks by removing the need to specify profile and memory dump file each time. It can also produce a summary by running a selection of plugins and outputing the results in corresponding files.
