@@ -1,0 +1,33 @@
+#! /bin/bash
+
+usage() {
+	this="$(basename $0)"
+
+	echo "$this - Quickly edit scripts in PATH"
+	echo "Simply calls the 'which' command to determine the location of the script given as first argument, then opens it with vi."
+	echo
+	echo "Usage: $this <exec_name>"
+	echo
+}
+
+if [ -z "$1" ]; then
+	usage
+	echo "Error: argument needed"
+	echo "See help above"
+	echo
+	exit 1
+elif [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
+	usage
+	exit 0
+fi
+
+loc=$(which "$1")
+
+if [ -z "$loc" ]; then
+	echo "Error: location of \"$1\" not found"
+	echo
+	exit -1
+fi
+
+vi "$loc"
+
